@@ -1948,33 +1948,12 @@
         e.preventDefault();
 
         // TODO: Replace this block with your FreeForms submission
-      //   fetch('https://script.google.com/macros/s/AKfycbxtAIitydZ_0WZqN7IThqxOEQCVNy8PomnaeS7TtIJWyGOw5FHBKD_wkTTtWLP-FnP5hg/exec', { 
-      //     method:'POST', 
-      //     body:JSON.stringify({
-      //       email: form.email.value,
-      //       skill: form.skill.value,
-      //       stage: form.stage.value
-      //     }
-      //     ) })
-      //     .then(function(){ showSuccess(); })
-      //     .catch(function(){ showSuccess(); });
-      // });
+        Example: fetch('https://formspree.io/f/mdaykkrj', { method:'POST', body:new FormData(form) })
+          .then(function(){ showSuccess(); })
+          .catch(function(){ showSuccess(); });
 
-              fetch('https://sheetdb.io/api/v1/332nlgnfin284', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            data: {
-              email: form.email.value,
-              skill: form.skill.value,
-              stage: form.stage.value
-            }
-          })
-        })
-        .then(function(){ showSuccess(); })
-        .catch(function(){ showSuccess(); });
+        showSuccess();
+      });
 
       function showSuccess() {
         overlay.classList.add('active');
