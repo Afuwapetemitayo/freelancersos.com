@@ -1983,7 +1983,6 @@
   function pad(n) { return (n < 10 ? '0' : '') + n; }
 
   function lockForm() {
-  // Show a "closed" message in place of the form section
   if (formSection) {
     formSection.innerHTML = `
       <div style="
@@ -2022,17 +2021,13 @@
           color: var(--text-dim);
           font-size: 16px;
           line-height: 1.7;
-          margin-bottom: 32px;
           max-width: 480px;
-          margin-left: auto;
-          margin-right: auto;
+          margin: 0 auto;
         ">Registration closed at midnight WAT. If you're already registered, check your inbox for your event link.</p>
-        
       </div>
     `;
   }
 
-  // Hide the nav CTA
   var navCta = document.querySelector('.nav-cta');
   if (navCta) navCta.style.display = 'none';
 }
