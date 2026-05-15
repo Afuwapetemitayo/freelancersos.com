@@ -1938,32 +1938,49 @@
 
     // ═══ FORM SUBMIT → SUCCESS OVERLAY → WHATSAPP DM REDIRECT ═══
     (function() {
-      var WA_LINK = 'https://wa.link/kt8itg';
-      var form = document.getElementById('register-form');
-      var overlay = document.getElementById('success-overlay');
+  var CUTOFF = new Date('2026-05-16T00:00:00+01:00').getTime();
+  var WA_LINK = 'https://wa.link/kt8itg';
+  var form = document.getElementById('register-form');
+  var overlay = document.getElementById('success-overlay');
 
-      if (!form || !overlay) return;
+  if (!form || !overlay) return;
 
-      form.addEventListener('submit', function(e) {
-        e.preventDefault();
+  // Lock form if past cutoff
+  if (Date.now() >= CUTOFF) {
+    form.querySelectorAll('input, select, button').forEach(function(el) {
+      el.disabled = true;
+    });
+    var btn = form.querySelector('.form-submit');
+    if (btn) {
+      btn.textContent = 'Registration is now closed';
+      btn.style.cssText = 'background:var(--text-muted);cursor:not-allowed;box-shadow:none;';
+    }
+    var fine = form.querySelector('.form-fine');
+    if (fine) {
+      fine.textContent = 'Registration closed at midnight WAT.';
+      fine.style.color = 'var(--neon-soft)';
+    }
+    return;
+  }
 
-        // TODO: Replace this block with your FreeForms submission
-        Example: fetch('https://formspree.io/f/mdaykkrj', { method:'POST', body:new FormData(form) })
-          .then(function(){ showSuccess(); })
-          .catch(function(){ showSuccess(); });
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
 
-        showSuccess();
-      });
+    fetch('https://formspree.io/f/mdaykkrj', { method:'POST', body:new FormData(form) })
+      .then(function(){ showSuccess(); })
+      .catch(function(){ showSuccess(); });
 
-      function showSuccess() {
-        overlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
+    showSuccess();
+  });
 
-        setTimeout(function() {
-          window.location.href = WA_LINK;
-        }, 3000);
-      }
-    })();
+  function showSuccess() {
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function() {
+      window.location.href = WA_LINK;
+    }, 3000);
+  }
+})();
   </script>
 </body>
 </html>
