@@ -1738,6 +1738,40 @@
             </select>
           </div>
 
+          <div id="reg-countdown" style="
+  margin: 16px 0 8px;
+  padding: 14px 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  text-align: center;
+">
+  <div style="font-family:var(--mono);font-size:10px;color:var(--text-muted);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px;">
+    Registration closes in
+  </div>
+  <div style="display:flex;justify-content:center;gap:10px;">
+    <div style="text-align:center;">
+      <span id="reg-d" style="font-family:var(--serif);font-size:26px;color:var(--text);display:block;line-height:1;">00</span>
+      <span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;">Days</span>
+    </div>
+    <span style="font-family:var(--serif);font-size:26px;color:var(--text-muted);line-height:1;">:</span>
+    <div style="text-align:center;">
+      <span id="reg-h" style="font-family:var(--serif);font-size:26px;color:var(--text);display:block;line-height:1;">00</span>
+      <span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;">Hrs</span>
+    </div>
+    <span style="font-family:var(--serif);font-size:26px;color:var(--text-muted);line-height:1;">:</span>
+    <div style="text-align:center;">
+      <span id="reg-m" style="font-family:var(--serif);font-size:26px;color:var(--text);display:block;line-height:1;">00</span>
+      <span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;">Mins</span>
+    </div>
+    <span style="font-family:var(--serif);font-size:26px;color:var(--text-muted);line-height:1;">:</span>
+    <div style="text-align:center;">
+      <span id="reg-s" style="font-family:var(--serif);font-size:26px;color:var(--neon-soft);display:block;line-height:1;">00</span>
+      <span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;">Secs</span>
+    </div>
+  </div>
+</div>
+
           <button type="submit" class="form-submit">Reserve my seat →</button>
           <div class="form-fine">We respect your inbox. No spam, just the event.</div>
         </form>
@@ -1942,33 +1976,64 @@
   var WA_LINK = 'https://wa.link/kt8itg';
   var form = document.getElementById('register-form');
   var overlay = document.getElementById('success-overlay');
+  var formSection = document.getElementById('register'); // the whole section
 
   if (!form || !overlay) return;
 
-  // Lock form if past cutoff
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+  function lockForm() {
+    // Hide the entire register section from the page
+    if (formSection) formSection.style.display = 'none';
+
+    // Also hide the "Register Free" nav link so it doesn't scroll to nothing
+    var navCta = document.querySelector('.nav-cta');
+    if (navCta) navCta.style.display = 'none';
+  }
+
+  function tickRegCountdown() {
+    var now = Date.now();
+    var diff = Math.max(0, CUTOFF - now);
+
+    var d = Math.floor(diff / 86400000); diff = diff % 86400000;
+    var h = Math.floor(diff / 3600000);  diff = diff % 3600000;
+    var m = Math.floor(diff / 60000);    diff = diff % 60000;
+    var s = Math.floor(diff / 1000);
+
+    var dEl = document.getElementById('reg-d');
+    var hEl = document.getElementById('reg-h');
+    var mEl = document.getElementById('reg-m');
+    var sEl = document.getElementById('reg-s');
+
+    if (dEl) dEl.textContent = pad(d);
+    if (hEl) hEl.textContent = pad(h);
+    if (mEl) mEl.textContent = pad(m);
+    if (sEl) sEl.textContent = pad(s);
+
+    // When time hits zero, lock the form live without needing a refresh
+    if (diff <= 0) {
+      clearInterval(regTimer);
+      lockForm();
+    }
+  }
+
+  // If already past cutoff on page load, lock immediately
   if (Date.now() >= CUTOFF) {
-    form.querySelectorAll('input, select, button').forEach(function(el) {
-      el.disabled = true;
-    });
-    var btn = form.querySelector('.form-submit');
-    if (btn) {
-      btn.textContent = 'Registration is now closed';
-      btn.style.cssText = 'background:var(--text-muted);cursor:not-allowed;box-shadow:none;';
-    }
-    var fine = form.querySelector('.form-fine');
-    if (fine) {
-      fine.textContent = 'Registration closed at midnight WAT.';
-      fine.style.color = 'var(--neon-soft)';
-    }
+    lockForm();
     return;
   }
 
+  // Start the countdown ticker
+  tickRegCountdown();
+  var regTimer = setInterval(tickRegCountdown, 1000);
+
+  // Form submission
   form.addEventListener('submit', function(e) {
     e.preventDefault();
 
-    fetch('https://formspree.io/f/mdaykkrj', { method:'POST', body:new FormData(form) })
-      .then(function(){ showSuccess(); })
-      .catch(function(){ showSuccess(); });
+    fetch('https://formspree.io/f/mdaykkrj', { method: 'POST', body: new FormData(form) })
+      .then(function() { showSuccess(); })
+      .catch(function() { showSuccess(); });
 
     showSuccess();
   });
