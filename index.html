@@ -599,7 +599,7 @@ html{scroll-behavior:smooth}
 </section>
 
 <sc-if value="{{ volOpen }}" hint-placeholder-val="{{ false }}">
-  <div onClick="{{ closeVol }}" style="position:fixed;inset:0;z-index:100;background:rgba(10,16,48,.45);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:grid;place-items:center;padding:16px;animation:rise .35s cubic-bezier(.16,1,.3,1) both">
+  <div onClick="{{ closeVol }}" style="position:fixed;inset:0;z-index:1000;background:rgba(10,16,48,.45);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:grid;place-items:center;padding:16px;animation:rise .35s cubic-bezier(.16,1,.3,1) both">
     <div onClick="{{ stop }}" style="position:relative;width:100%;max-width:520px;max-height:90vh;overflow:auto;border-radius:28px;background:#fff;color:#0A1030;padding:clamp(22px,4vw,32px);box-shadow:0 40px 100px -30px rgba(10,16,48,.6)">
       <button onClick="{{ closeVol }}" aria-label="Close" style="position:absolute;right:16px;top:16px;border:0;cursor:pointer;display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:#F1F4FB;font-size:20px;color:#0A1030">×</button>
       <sc-if value="{{ volNotSent }}" hint-placeholder-val="{{ true }}">
@@ -841,8 +841,8 @@ class Component extends DCLogic {
       teamAll: !!this.state.teamAll, teamLess: !this.state.teamAll,
       showTeam: () => this.setState({ teamAll: true }, () => this.primeReveals && this.primeReveals()),
       volOpen: !!this.state.volOpen, volSent: !!this.state.vSent, volNotSent: !this.state.vSent,
-      openVol: () => this.setState({ volOpen: true }),
-      closeVol: () => this.setState({ volOpen: false }),
+      openVol: () => { this.setState({ volOpen: true, vSent: false, vErr: false }); document.body.style.overflow = 'hidden'; },
+      closeVol: () => { this.setState({ volOpen: false }); document.body.style.overflow = ''; },
       vName: this.state.vName || '', vEmail: this.state.vEmail || '', vPhone: this.state.vPhone || '', vRole: this.state.vRole || '', vNote: this.state.vNote || '',
       setVName: e => this.setState({ vName: e.target.value }), setVEmail: e => this.setState({ vEmail: e.target.value }),
       setVPhone: e => this.setState({ vPhone: e.target.value }), setVRole: e => this.setState({ vRole: e.target.value }), setVNote: e => this.setState({ vNote: e.target.value }),
@@ -851,7 +851,7 @@ class Component extends DCLogic {
       sendVol: e => {
         e.preventDefault();
         if (this.state.vSending) return;
-        const url = this.props.sheetUrl;
+        const url = this.props.sheetUrl || 'https://script.google.com/macros/s/AKfycbwOYfewJ7wK1E9fribPCk5Y5vO-jugHwND7c39vbtgo2-fm1ZeDGLV0LugQ6SknbRPA4g/exec';
         const done = () => this.setState({ vSent: true, vSending: false, vErr: false });
         if (!url) { done(); return; }
         this.setState({ vSending: true, vErr: false });
@@ -880,7 +880,7 @@ class Component extends DCLogic {
       join: e => {
         e.preventDefault();
         if (!this.state.email || this.state.sending) return;
-        const url = this.props.sheetUrl;
+        const url = this.props.sheetUrl || 'https://script.google.com/macros/s/AKfycbwOYfewJ7wK1E9fribPCk5Y5vO-jugHwND7c39vbtgo2-fm1ZeDGLV0LugQ6SknbRPA4g/exec';
         const done = () => this.setState({ joined: true, sending: false, err: false });
         if (!url) { done(); return; }
         this.setState({ sending: true, err: false });
